@@ -4,12 +4,12 @@ import subprocess
 import re
 
 class CPU_Info:
-    """Simple class to collect node information using `lscpu`.  If `lscpu` is not 
+    """Simple class to collect node information using `lscpu`.  If `lscpu` is not
        found, the class will exit with an exception"""
     def __init__(self):
         def __lscpu():
-            """ __lscpu will read the information from `lscpu`, and place the 
-                data in a simple dict, with the key being the part before the 
+            """ __lscpu will read the information from `lscpu`, and place the
+                data in a simple dict, with the key being the part before the
                 ":" and the value all data after.
             """
             try:
@@ -37,7 +37,7 @@ class CPU_Info:
                 lr = list(map(int, r.split(b'-')))
                 ranges.extend([*range(lr[0], lr[-1]+1)])
             return ranges
-        
+
         lscpu = __lscpu()
         if lscpu is not None:
             self.architecture = lscpu[b'Architecture']
@@ -72,7 +72,7 @@ class CPU_Info:
         else:
             self.Error = True
 
-            
+
 def main():
     import argparse
     import sys
@@ -163,7 +163,7 @@ def main():
             print(f'l3_cache {cpu_info.l3_cache}', file=sys.stderr)
             print(f'cpus_numa_nodes {cpu_info.cpus_numa_nodes}', file=sys.stderr)
             print(f'flags {cpu_info.flags}', file=sys.stderr)
-            
+
         sockets = cpu_info.sockets
         cores_per_socket = cpu_info.cores_per_socket
         memZones = cpu_info.numa_nodes
@@ -185,7 +185,7 @@ def main():
     # Calculated values
     totCores = sockets * cores_per_socket
     cores_in_numa_node = int(totCores / memZones)
-    
+
     if args.verbose >= 1:
         print(f"Using settings", file=sys.stderr)
         print(f"    sockets = {sockets}", file=sys.stderr)
@@ -194,7 +194,6 @@ def main():
         print(f"    Total Physical Cores = {totCores}", file=sys.stderr)
         print(f"    Cores in NUMA Zones = {cores_in_numa_node}", file=sys.stderr)
         print(f"    OMP threads = {threads}", file=sys.stderr)
-        
 
     cpu_list = [i + j * cores_in_numa_node \
                 for i in range(0, cores_in_numa_node, threads) \
@@ -203,8 +202,11 @@ def main():
     if args.verbose >=2:
         print(f"CPU List: {','.join((str(n) for n in cpu_list))}", file=sys.stderr)
 
+    # Width of hex string representation of core mask for node with totCores
+    hex_width = int(totCores / 4) if totCores >=4 else 1
+
     if not args.no_hyperthreads and not args.cpu_list:
-        print(','.join((f"{2**n:#0x}{2**n:0{32}x}" for n in cpu_list)))
+        print(','.join((f"{2**n:#0x}{2**n:0{hex_width}x}" for n in cpu_list)))
     elif args.no_hyperthreads and not args.cpu_list:
         print(','.join((f"{2**n:#0x}" for n in cpu_list)))
     else:
