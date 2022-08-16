@@ -1,0 +1,42 @@
+package:
+    name: numa_mask_gen
+    version: 0.2.0
+
+source:
+    git_url: https://github.com/underwoo/numa_mask_gen
+    git_rev: v0.2.0
+
+build:
+    number: 0
+    script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+    host:
+        - pip
+        - python>=3.6
+    run:
+        - python>=3.6
+
+test:
+    commands:
+        - test -f ${PREFIX}/bin/numa_mask_gen # [unix]
+        - ${PREFIX}/bin/numa_mask_gen -h
+        - ${PREFIX}/bin/numa_mask_gen --sockets=1 --cores-per-socket=1 --numa-nodes=1
+        - ${PREFIX}/bin/numa_mask_gen --sockets=1 --cores-per-socket=1 --numa-nodes=1 --no-hyperthreads --cpu-list
+        - command -v lscpu 2>&1 > /dev/null &&  ${PREFIX}/bin/numa_mask_gen --use-lscpu || true # [unix]
+        - ${PREFIX}/bin/numa_mask_gen --threads=2 --sockets=2 --cores-per-socket=10 --numa-nodes=2
+
+about:
+    home: https://github.com/underwoo/numa_mask_gen
+    license: LGPL v2.1
+    summary: 'numa_mask_gen will generate a CPU pinning mask for MPI executables'
+
+    description: |
+      Generate a CPU Mask list usable by MPI-based jobs run with Slurm's `srun`, or
+      `mpirun` from any of the MPI libraries (e.g., mpich, openMPI).  Can be used
+      to generate a mask for hybrid MPI+OpenMP jobs.
+
+extra:
+    recipe-maintainers:
+        - underwoo
+

@@ -1,2 +1,3 @@
 build/
 *.egg-info/
+*.tar.bz2
