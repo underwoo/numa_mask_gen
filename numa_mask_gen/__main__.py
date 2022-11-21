@@ -131,9 +131,10 @@ def main():
     hex_width = int(totCores / 4) if totCores >=4 else 1
 
     if not args.no_hyperthreads and not args.cpu_list:
-        print(','.join((f"{2**n:#0x}{2**n:0{hex_width}x}" for n in cpu_list)))
+        print(','.join((f"{sum(2**(n+i) for i in range(0, threads)):#0x}{sum(2**(n+i) for i in range(0, threads)):0{hex_width}x}"\
+                  for n in cpu_list)))
     elif args.no_hyperthreads and not args.cpu_list:
-        print(','.join((f"{2**n:#0x}" for n in cpu_list)))
+        print(','.join((f"{sum(2**(n+i) for i in range(0, threads)):#0x}" for n in cpu_list)))
     else:
         print(','.join((str(n) for n in cpu_list)))
 
